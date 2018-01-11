@@ -7,7 +7,6 @@
 #include "Engine/TriggerVolume.h"
 #include "OpenDoor.generated.h"
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPETHEBUILDING_API UOpenDoor : public UActorComponent
 {
@@ -33,4 +32,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume* PressurePlate;
+
+	UPROPERTY(EditAnywhere)
+	AActor* ActorThatTriggersDoor;
+
+	void OpenDoor();
 };

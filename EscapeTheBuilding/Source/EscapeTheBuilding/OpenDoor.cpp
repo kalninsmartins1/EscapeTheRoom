@@ -3,7 +3,6 @@
 #include "OpenDoor.h"
 #include "GameFramework/Actor.h"
 
-
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor():
 	OpenAngle(90)
@@ -20,16 +19,6 @@ UOpenDoor::UOpenDoor():
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// Get owner actor
-	AActor* Owner = GetOwner();
-
-	// Get current actor rotation		
-	const FRotator currentRotation = Owner->GetActorRotation();
-
-	// Rotate actor on yaw axis by 90 degrees
-	Owner->SetActorRotation(FRotator(currentRotation.Pitch, 
-		currentRotation.Yaw - 90, currentRotation.Roll));
 }
 
 
@@ -38,6 +27,25 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	// Poll the TriggerVolume for key actor overlap
+	if(PressurePlate != nullptr && ActorThatTriggersDoor != nullptr &&
+		PressurePlate->IsOverlappingActor(ActorThatTriggersDoor))
+	{		
+		OpenDoor();	
+	}
+	
+}
+
+void UOpenDoor::OpenDoor()
+{
+	// Get owner actor
+	AActor* Owner = GetOwner();
+
+	// Get current actor rotation
+	const FRotator currentRotation = Owner->GetActorRotation();
+
+	// Rotate actor on yaw axis by 90 degrees
+	Owner->SetActorRotation(FRotator(currentRotation.Pitch,
+		currentRotation.Yaw - 90, currentRotation.Roll));
 }
 
