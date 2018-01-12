@@ -2,6 +2,7 @@
 
 #include "OpenDoor.h"
 #include "GameFramework/Actor.h"
+#include "Runtime/Engine/Classes/Engine/World.h"
 
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor():
@@ -19,6 +20,9 @@ UOpenDoor::UOpenDoor():
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Find the player pawn
+	ActorThatTriggersDoor = GetWorld()->GetFirstPlayerController()->GetPawn();
 }
 
 
@@ -38,6 +42,8 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UOpenDoor::OpenDoor()
 {
+	UE_LOG(LogTemp, Warning,TEXT("OpenDoor: Doors are open !"))
+
 	// Get owner actor
 	AActor* Owner = GetOwner();
 

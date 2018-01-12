@@ -27,14 +27,15 @@ public:
 		
 private:
 
+	void OpenDoor();
+
+
 	UPROPERTY(VisibleAnywhere)
 	float OpenAngle;
 
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume* PressurePlate;
-
-	UPROPERTY(EditAnywhere)
+	
 	AActor* ActorThatTriggersDoor;
 
-	void OpenDoor();
 };
