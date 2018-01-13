@@ -6,7 +6,10 @@
 
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor():
-	OpenAngle(90)
+	OpenAngle(90),
+	TimeBeforeDoorCloses(1),
+	LastTimeDoorWasOpened(0),
+	bIsDoorOpened(false)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -23,6 +26,9 @@ void UOpenDoor::BeginPlay()
 
 	// Find the player pawn
 	ActorThatTriggersDoor = GetWorld()->GetFirstPlayerController()->GetPawn();
+
+	// Get the owner of this component
+	Owner = GetOwner();
 }
 
 
@@ -33,25 +39,43 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 	// Poll the TriggerVolume for key actor overlap
 	if(PressurePlate != nullptr && ActorThatTriggersDoor != nullptr &&
-		PressurePlate->IsOverlappingActor(ActorThatTriggersDoor))
-	{		
+		PressurePlate->IsOverlappingActor(ActorThatTriggersDoor) &&
+		!bIsDoorOpened)
+	{
 		OpenDoor();	
+		LastTimeDoorWasOpened = GetWorld()->GetTimeSeconds();
 	}
-	
+
+	// If the Time for door too close has passed then close the doors
+	const float CurrentTime = GetWorld()->GetTimeSeconds();
+	const float TimePassedSinceDoorWasOpen = CurrentTime - LastTimeDoorWasOpened;
+	if(bIsDoorOpened && TimePassedSinceDoorWasOpen > TimeBeforeDoorCloses)
+	{
+		CloseDoor();
+	}
 }
 
 void UOpenDoor::OpenDoor()
 {
-	UE_LOG(LogTemp, Warning,TEXT("OpenDoor: Doors are open !"))
+	const FRotator& CurRotation = Owner->GetActorRotation();
+	
+	// Rotate door in negative direction by OpenAngle degrees
+	Owner->SetActorRotation(FRotator(CurRotation.Pitch,
+		CurRotation.Yaw - OpenAngle, CurRotation.Roll));
 
-	// Get owner actor
-	AActor* Owner = GetOwner();
+	// Doors are now oppened
+	bIsDoorOpened = true;
+}
 
-	// Get current actor rotation
-	const FRotator currentRotation = Owner->GetActorRotation();
+void UOpenDoor::CloseDoor()
+{
+	const FRotator& CurRotation = Owner->GetActorRotation();
 
-	// Rotate actor on yaw axis by 90 degrees
-	Owner->SetActorRotation(FRotator(currentRotation.Pitch,
-		currentRotation.Yaw - 90, currentRotation.Roll));
+	// Rotate door in positive direction by OpenAngle degrees
+	Owner->SetActorRotation(FRotator(CurRotation.Pitch,
+		CurRotation.Yaw + OpenAngle, CurRotation.Roll));
+
+	// Doors are now closed
+	bIsDoorOpened = false;
 }
 

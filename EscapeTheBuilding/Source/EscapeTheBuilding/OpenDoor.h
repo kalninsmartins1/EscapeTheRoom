@@ -28,6 +28,7 @@ public:
 private:
 
 	void OpenDoor();
+	void CloseDoor();
 
 
 	UPROPERTY(VisibleAnywhere)
@@ -36,6 +37,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume* PressurePlate;
 	
-	AActor* ActorThatTriggersDoor;
+	UPROPERTY(EditAnywhere)
+	float TimeBeforeDoorCloses;
 
+	AActor* ActorThatTriggersDoor;
+	AActor* Owner;
+
+	float LastTimeDoorWasOpened;
+	bool bIsDoorOpened;
 };
