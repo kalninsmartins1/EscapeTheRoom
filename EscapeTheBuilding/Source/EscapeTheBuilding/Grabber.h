@@ -24,6 +24,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+private:
+	
+	// How far ahead pawn can reach other objects
+	UPROPERTY(EditAnywhere)
+	float Reach;
 	
 };
