@@ -76,5 +76,6 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
-# Avoid starter content for this project since it is available from engine
-*/StarterContent
+# Avoid Textures and HDRI since for this project no changes occure in these folders.
+*/StarterContent/Textures
+*/StarterContent/HDRI
