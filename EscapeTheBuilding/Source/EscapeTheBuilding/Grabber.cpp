@@ -39,8 +39,25 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		OUT ViewPointRotation);
 
 
+	// Debug ray cast
 	FVector LineEnd = PlayerLocation + ViewPointRotation.Vector() * Reach;
 	DrawDebugLine(GetWorld(), PlayerLocation, LineEnd, 
 		FColor::Red, false, 0, 0, 10);
+
+
+	// Perform actual ray cast
+	FHitResult Hit;
+	const bool bDidHitOccured = GetWorld()->LineTraceSingleByObjectType(
+		OUT Hit,
+		PlayerLocation,
+		LineEnd,
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		FCollisionQueryParams(FName(TEXT("")), false, GetOwner()));
+	
+	if(bDidHitOccured)
+	{
+		FString ActorName = Hit.Actor->GetName();
+		UE_LOG(LogTemp, Warning, TEXT("Grabber: Ray hit %s"), *ActorName);
+	}	
 }
 
