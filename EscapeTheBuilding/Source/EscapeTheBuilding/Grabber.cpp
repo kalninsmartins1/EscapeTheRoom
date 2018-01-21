@@ -8,13 +8,12 @@
 
 // Sets default values for this component's properties
 UGrabber::UGrabber() :
-	Reach(100)
+	Reach(100),
+	PhysicsHandle(nullptr)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -23,7 +22,20 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("Hello from Grabber !"));	
+	// Get the sibling physics handle component
+	AActor* Owner = GetOwner();
+	PhysicsHandle = Owner->FindComponentByClass<UPhysicsHandleComponent>();
+	if (PhysicsHandle != nullptr)
+	{
+		// Everything is fine
+	}
+	else
+	{
+		FString ActorName = Owner->GetName();
+		UE_LOG(LogTemp, Error,
+			TEXT("Grabber: Missing PhysicsHandleComponent from actor %s"),
+			*ActorName);
+	}
 }
 
 

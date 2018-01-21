@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsHandleComponent.h"
 #include "Components/ActorComponent.h"
 #include "Grabber.generated.h"
 
@@ -30,4 +31,5 @@ private:
 	UPROPERTY(EditAnywhere)
 	float Reach;
 	
+	UPhysicsHandleComponent* PhysicsHandle;
 };
