@@ -3,6 +3,7 @@
 #include "Grabber.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
 #include "Runtime/Engine/Public/DrawDebugHelpers.h"
+#include "Runtime/Core/Public/Misc/AssertionMacros.h"
 
 #define OUT
 
@@ -35,6 +36,17 @@ void UGrabber::BeginPlay()
 		UE_LOG(LogTemp, Error,
 			TEXT("Grabber: Missing PhysicsHandleComponent from actor %s"),
 			*ActorName);
+	}
+
+	InputComponent = Owner->FindComponentByClass<UInputComponent>();
+	if (InputComponent != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Grabber: Input component found !"));
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::OnGrabPressed);
+	}
+	else
+	{
+		check(false && "Grabber: InputComponent not found !");
 	}
 }
 
@@ -71,5 +83,10 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		FString ActorName = Hit.Actor->GetName();
 		UE_LOG(LogTemp, Warning, TEXT("Grabber: Ray hit %s"), *ActorName);
 	}	
+}
+
+void UGrabber::OnGrabPressed()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Grabber: Grab pressed"));
 }
 

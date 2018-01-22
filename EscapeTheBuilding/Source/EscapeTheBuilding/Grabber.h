@@ -26,10 +26,14 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
+
+	// Ray-cast and grab PhysicsBodys that are in reach
+	void OnGrabPressed();
 	
 	// How far ahead pawn can reach other objects
 	UPROPERTY(EditAnywhere)
 	float Reach;
 	
 	UPhysicsHandleComponent* PhysicsHandle;
+	UInputComponent* InputComponent;
 };
