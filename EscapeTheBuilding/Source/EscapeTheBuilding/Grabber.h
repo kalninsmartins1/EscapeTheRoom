@@ -29,6 +29,7 @@ private:
 
 	// Ray-cast and grab PhysicsBodys that are in reach
 	void OnGrabPressed();
+	void OnGrabReleased();
 	
 	// How far ahead pawn can reach other objects
 	UPROPERTY(EditAnywhere)
