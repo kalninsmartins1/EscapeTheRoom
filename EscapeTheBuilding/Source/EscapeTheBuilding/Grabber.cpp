@@ -33,16 +33,22 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 		
+	// If a component has been grabbed then move it
+	if(PhysicsHandle->GetGrabbedComponent() != nullptr)
+	{
+		PhysicsHandle->SetTargetLocation(GetMaxReachPosition());
+	}
 }
 
 void UGrabber::OnGrabPressed()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grabber: Grab pressed !"));
-	GetPhysicsBodyInReach();
+	TryGrabbing();
 }
 void UGrabber::OnGrabReleased()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Grabber: Grab released !"));
+	Release();
 }
 
 void UGrabber::FindPhysicsComponent()
@@ -50,11 +56,7 @@ void UGrabber::FindPhysicsComponent()
 	// Get the sibling physics handle component
 	AActor* Owner = GetOwner();
 	PhysicsHandle = Owner->FindComponentByClass<UPhysicsHandleComponent>();
-	if (PhysicsHandle != nullptr)
-	{
-		// Everything is fine
-	}
-	else
+	if (PhysicsHandle == nullptr)
 	{
 		FString ActorName = Owner->GetName();
 		UE_LOG(LogTemp, Error,
@@ -78,36 +80,46 @@ void UGrabber::SetUpInput()
 	}
 }
 
-FHitResult UGrabber::GetPhysicsBodyInReach()
+FHitResult UGrabber::GetPhysicsBodyInReach() const
+{
+	// Perform actual ray cast
+	FHitResult Hit;
+	GetWorld()->LineTraceSingleByObjectType(
+		OUT Hit,
+		GetOwner()->GetActorLocation(),
+		GetMaxReachPosition(),
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		FCollisionQueryParams(FName(TEXT("")), false, GetOwner()));
+
+	return Hit;
+}
+
+FVector UGrabber::GetMaxReachPosition() const
 {
 	// Get view point rotation and player location
 	FVector PlayerLocation;
 	FRotator ViewPointRotation;
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerLocation,
-		OUT ViewPointRotation);
+	GetWorld()->GetFirstPlayerController()->
+		GetPlayerViewPoint(OUT PlayerLocation,
+			OUT ViewPointRotation);
+	FVector MaxReachPosition = PlayerLocation +
+		ViewPointRotation.Vector() * Reach;
 
+	return MaxReachPosition;
+}
 
-	// Debug ray cast
-	FVector LineEnd = PlayerLocation + ViewPointRotation.Vector() * Reach;
-	DrawDebugLine(GetWorld(), PlayerLocation, LineEnd,
-		FColor::Red, false, 0, 0, 10);
+void UGrabber::TryGrabbing()
+{
+	FHitResult Hit = GetPhysicsBodyInReach();
 
-
-	// Perform actual ray cast
-	FHitResult Hit;
-	const bool bDidHitOccured = GetWorld()->LineTraceSingleByObjectType(
-		OUT Hit,
-		PlayerLocation,
-		LineEnd,
-		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
-		FCollisionQueryParams(FName(TEXT("")), false, GetOwner()));
-
-	if (bDidHitOccured)
+	if (Hit.Actor != nullptr)
 	{
-		FString ActorName = Hit.Actor->GetName();
-		UE_LOG(LogTemp, Warning, TEXT("Grabber: Ray hit %s"), *ActorName);
+		PhysicsHandle->GrabComponentAtLocationWithRotation(Hit.Component.Get(),
+			"", Hit.Actor->GetActorLocation(), FRotator::ZeroRotator);
 	}
-
-	return Hit;
+}
+void UGrabber::Release()
+{
+	PhysicsHandle->ReleaseComponent();
 }
 

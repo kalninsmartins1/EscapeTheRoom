@@ -33,7 +33,10 @@ private:
 
 	void FindPhysicsComponent();
 	void SetUpInput();
-	FHitResult GetPhysicsBodyInReach();
+	FHitResult GetPhysicsBodyInReach() const;
+	FVector GetMaxReachPosition() const;
+	void TryGrabbing();
+	void Release();
 	
 	// How far ahead pawn can reach other objects
 	UPROPERTY(EditAnywhere)
