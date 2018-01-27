@@ -24,11 +24,11 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
 private:
 
 	void OpenDoor();
 	void CloseDoor();
+	float GetCurrentMassOnPlate() const;
 
 
 	UPROPERTY(VisibleAnywhere)
@@ -40,7 +40,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	float TimeBeforeDoorCloses;
 
-	AActor* ActorThatTriggersDoor;
+	UPROPERTY(EditAnywhere)
+	float MassToTriggerDoors;
+
 	AActor* Owner;
 
 	float LastTimeDoorWasOpened;

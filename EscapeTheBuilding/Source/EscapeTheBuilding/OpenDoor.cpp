@@ -3,29 +3,28 @@
 #include "OpenDoor.h"
 #include "GameFramework/Actor.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
+#include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
+
+#define OUT
 
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor():
 	OpenAngle(90),
 	TimeBeforeDoorCloses(1),
 	LastTimeDoorWasOpened(0),
-	bIsDoorOpened(false)
+	bIsDoorOpened(false),
+	MassToTriggerDoors(40)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
 // Called when the game starts
 void UOpenDoor::BeginPlay()
 {
-	Super::BeginPlay();
-
-	// Find the player pawn
-	ActorThatTriggersDoor = GetWorld()->GetFirstPlayerController()->GetPawn();
+	Super::BeginPlay();	
 
 	// Get the owner of this component
 	Owner = GetOwner();
@@ -38,8 +37,8 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// Poll the TriggerVolume for key actor overlap
-	if(PressurePlate != nullptr && ActorThatTriggersDoor != nullptr &&
-		PressurePlate->IsOverlappingActor(ActorThatTriggersDoor) &&
+	if(PressurePlate != nullptr &&
+		GetCurrentMassOnPlate() >= MassToTriggerDoors &&
 		!bIsDoorOpened)
 	{
 		OpenDoor();	
@@ -77,5 +76,31 @@ void UOpenDoor::CloseDoor()
 
 	// Doors are now closed
 	bIsDoorOpened = false;
+}
+
+float UOpenDoor::GetCurrentMassOnPlate() const
+{
+	float TotalMassOnPlate = 0;
+
+	// Find all overlapping actors
+	TArray<AActor*> OverlappingActors;
+	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
+
+	// Sum their mass 
+	for(auto Actor : OverlappingActors)
+	{
+		TArray<UActorComponent*> MeshComponents =
+		Actor->GetComponentsByClass(UStaticMeshComponent::StaticClass());
+		for(auto Component : MeshComponents)
+		{
+			UStaticMeshComponent* MeshComponent = (UStaticMeshComponent*)Component;
+			if(MeshComponent != nullptr)
+			{
+				TotalMassOnPlate += MeshComponent->GetMass();
+			}
+		}
+	}	
+
+	return TotalMassOnPlate;
 }
 

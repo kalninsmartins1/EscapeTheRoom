@@ -101,11 +101,9 @@ FVector UGrabber::GetMaxReachPosition() const
 	FRotator ViewPointRotation;
 	GetWorld()->GetFirstPlayerController()->
 		GetPlayerViewPoint(OUT PlayerLocation,
-			OUT ViewPointRotation);
-	FVector MaxReachPosition = PlayerLocation +
-		ViewPointRotation.Vector() * Reach;
+			OUT ViewPointRotation);	
 
-	return MaxReachPosition;
+	return PlayerLocation + ViewPointRotation.Vector() * Reach;;
 }
 
 void UGrabber::TryGrabbing()
@@ -115,9 +113,10 @@ void UGrabber::TryGrabbing()
 	if (Hit.Actor != nullptr)
 	{
 		PhysicsHandle->GrabComponentAtLocationWithRotation(Hit.Component.Get(),
-			"", Hit.Actor->GetActorLocation(), FRotator::ZeroRotator);
+			NAME_None, Hit.Actor->GetActorLocation(), FRotator::ZeroRotator);
 	}
 }
+
 void UGrabber::Release()
 {
 	PhysicsHandle->ReleaseComponent();
