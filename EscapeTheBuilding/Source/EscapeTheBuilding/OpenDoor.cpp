@@ -3,7 +3,7 @@
 #include "OpenDoor.h"
 #include "GameFramework/Actor.h"
 #include "Runtime/Engine/Classes/Engine/World.h"
-#include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
+#include "Runtime/Engine/Classes/Components/PrimitiveComponent.h"
 
 #define OUT
 
@@ -87,19 +87,15 @@ float UOpenDoor::GetCurrentMassOnPlate() const
 	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
 
 	// Sum their mass 
-	for(auto Actor : OverlappingActors)
+	for(const AActor* Actor : OverlappingActors)
 	{
-		TArray<UActorComponent*> MeshComponents =
-		Actor->GetComponentsByClass(UStaticMeshComponent::StaticClass());
-		for(auto Component : MeshComponents)
+		UPrimitiveComponent* PrimitiveComponent =
+			Actor->FindComponentByClass<UPrimitiveComponent>();
+		if (PrimitiveComponent != nullptr)
 		{
-			UStaticMeshComponent* MeshComponent = (UStaticMeshComponent*)Component;
-			if(MeshComponent != nullptr)
-			{
-				TotalMassOnPlate += MeshComponent->GetMass();
-			}
+			TotalMassOnPlate += PrimitiveComponent->GetMass();
 		}
-	}	
+	}
 
 	return TotalMassOnPlate;
 }
