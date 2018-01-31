@@ -10,7 +10,8 @@
 // Sets default values for this component's properties
 UGrabber::UGrabber() :
 	Reach(100),
-	PhysicsHandle(nullptr)
+	PhysicsHandle(nullptr),
+	InputComponent(nullptr)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -34,7 +35,8 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 		
 	// If a component has been grabbed then move it
-	if(PhysicsHandle->GetGrabbedComponent() != nullptr)
+	if(PhysicsHandle != nullptr && 
+		PhysicsHandle->GetGrabbedComponent() != nullptr)
 	{
 		PhysicsHandle->SetTargetLocation(GetMaxReachPosition());
 	}
@@ -67,7 +69,8 @@ void UGrabber::FindPhysicsComponent()
 
 void UGrabber::SetUpInput()
 {
-	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	InputComponent = GetOwner()->
+		FindComponentByClass<UInputComponent>();
 	if (InputComponent != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Grabber: Input component found !"));
@@ -88,7 +91,8 @@ FHitResult UGrabber::GetPhysicsBodyInReach() const
 		OUT Hit,
 		GetOwner()->GetActorLocation(),
 		GetMaxReachPosition(),
-		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		FCollisionObjectQueryParams(
+			ECollisionChannel::ECC_PhysicsBody),
 		FCollisionQueryParams(FName(TEXT("")), false, GetOwner()));
 
 	return Hit;
@@ -108,17 +112,22 @@ FVector UGrabber::GetMaxReachPosition() const
 
 void UGrabber::TryGrabbing()
 {
-	FHitResult Hit = GetPhysicsBodyInReach();
-
-	if (Hit.Actor != nullptr)
+	if(PhysicsHandle != nullptr)
 	{
-		PhysicsHandle->GrabComponentAtLocationWithRotation(Hit.Component.Get(),
-			NAME_None, Hit.Actor->GetActorLocation(), FRotator::ZeroRotator);
+		FHitResult Hit = GetPhysicsBodyInReach();
+		if (Hit.Actor != nullptr)
+		{
+			PhysicsHandle->GrabComponentAtLocationWithRotation(Hit.Component.Get(),
+				NAME_None, Hit.Actor->GetActorLocation(), FRotator::ZeroRotator);
+		}
 	}
 }
 
 void UGrabber::Release()
 {
-	PhysicsHandle->ReleaseComponent();
+	if(PhysicsHandle != nullptr)
+	{
+		PhysicsHandle->ReleaseComponent();
+	}
 }
 
