@@ -65,11 +65,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UOpenDoor::OpenDoor()
 {
-	const FRotator& CurRotation = Owner->GetActorRotation();
-	
-	// Rotate door in negative direction by OpenAngle degrees
-	Owner->SetActorRotation(FRotator(CurRotation.Pitch,
-		CurRotation.Yaw - OpenAngle, CurRotation.Roll));
+	OpenDoorRequest.Broadcast();
 
 	// Doors are now oppened
 	bIsDoorOpened = true;

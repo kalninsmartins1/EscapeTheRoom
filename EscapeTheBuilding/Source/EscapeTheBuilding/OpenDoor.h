@@ -7,6 +7,8 @@
 #include "Engine/TriggerVolume.h"
 #include "OpenDoor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOpenDoorRequest);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPETHEBUILDING_API UOpenDoor : public UActorComponent
 {
@@ -42,6 +44,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float MassToTriggerDoors;
+
+	UPROPERTY(BlueprintCallable)
+	FOpenDoorRequest OpenDoorRequest;
 
 	AActor* Owner;
 
