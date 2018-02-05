@@ -8,12 +8,8 @@
 #define OUT
 
 // Sets default values for this component's properties
-UOpenDoor::UOpenDoor():
-	OpenAngle(90),
-	PressurePlate(nullptr),
-	TimeBeforeDoorCloses(1),
-	LastTimeDoorWasOpened(0),
-	bIsDoorOpened(false),
+UOpenDoor::UOpenDoor():	
+	PressurePlate(nullptr),	
 	MassToTriggerDoors(40),
 	Owner(nullptr)
 {
@@ -45,42 +41,16 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Poll the TriggerVolume for key actor overlap
+	// Poll the TriggerVolume for key actor overlap	
 	if(PressurePlate != nullptr &&
-		GetCurrentMassOnPlate() >= MassToTriggerDoors &&
-		!bIsDoorOpened)
+		GetCurrentMassOnPlate() >= MassToTriggerDoors)
 	{
-		OpenDoor();	
-		LastTimeDoorWasOpened = GetWorld()->GetTimeSeconds();
+		OnOpen.Broadcast();
 	}
-
-	// If the Time for door too close has passed then close the doors
-	const float CurrentTime = GetWorld()->GetTimeSeconds();
-	const float TimePassedSinceDoorWasOpen = CurrentTime - LastTimeDoorWasOpened;
-	if(bIsDoorOpened && TimePassedSinceDoorWasOpen > TimeBeforeDoorCloses)
+	else
 	{
-		CloseDoor();
-	}
-}
-
-void UOpenDoor::OpenDoor()
-{
-	OpenDoorRequest.Broadcast();
-
-	// Doors are now oppened
-	bIsDoorOpened = true;
-}
-
-void UOpenDoor::CloseDoor()
-{
-	const FRotator& CurRotation = Owner->GetActorRotation();
-
-	// Rotate door in positive direction by OpenAngle degrees
-	Owner->SetActorRotation(FRotator(CurRotation.Pitch,
-		CurRotation.Yaw + OpenAngle, CurRotation.Roll));
-
-	// Doors are now closed
-	bIsDoorOpened = false;
+		OnClose.Broadcast();
+	}	
 }
 
 float UOpenDoor::GetCurrentMassOnPlate() const
