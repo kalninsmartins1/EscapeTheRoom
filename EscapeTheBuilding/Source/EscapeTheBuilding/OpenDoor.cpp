@@ -11,7 +11,9 @@
 UOpenDoor::UOpenDoor():	
 	PressurePlate(nullptr),	
 	MassToTriggerDoors(40),
-	Owner(nullptr)
+	Owner(nullptr),
+	bIsDoorOpen(false),
+	bIsDoorMoving(false)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -41,16 +43,19 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// Poll the TriggerVolume for key actor overlap	
-	if(PressurePlate != nullptr &&
-		GetCurrentMassOnPlate() >= MassToTriggerDoors)
+	if(!bIsDoorMoving && PressurePlate != nullptr)
 	{
-		OnOpen.Broadcast();
+		// Poll the TriggerVolume for key actor overlap	
+		const bool bIsRequiredMassOnPlate = GetCurrentMassOnPlate() >= MassToTriggerDoors;
+		if (!bIsDoorOpen && bIsRequiredMassOnPlate)
+		{
+			OpenDoors();
+		}
+		else if(bIsDoorOpen && !bIsRequiredMassOnPlate)
+		{
+			CloseDoors();
+		}
 	}
-	else
-	{
-		OnClose.Broadcast();
-	}	
 }
 
 float UOpenDoor::GetCurrentMassOnPlate() const
@@ -82,3 +87,21 @@ float UOpenDoor::GetCurrentMassOnPlate() const
 	return TotalMassOnPlate;
 }
 
+void UOpenDoor::OpenDoors()
+{
+	OnOpen.Broadcast();
+	bIsDoorMoving = true;
+	bIsDoorOpen = true;
+}
+
+void UOpenDoor::CloseDoors()
+{
+	OnClose.Broadcast();
+	bIsDoorMoving = true;
+	bIsDoorOpen = false;
+}
+
+void UOpenDoor::OnDoorMovementFinished()
+{
+	bIsDoorMoving = false;
+}

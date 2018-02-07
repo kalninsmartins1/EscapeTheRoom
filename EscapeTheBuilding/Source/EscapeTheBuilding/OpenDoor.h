@@ -26,9 +26,15 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-private:	
+
+private:
+	void OpenDoors();
+	void CloseDoors();
 	float GetCurrentMassOnPlate() const;
 
+
+	UFUNCTION(BlueprintCallable, Category = "Event")
+	void OnDoorMovementFinished();
 
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume* PressurePlate;
@@ -42,5 +48,7 @@ private:
 	UPROPERTY(BlueprintCallable)
 	FDoorEvent OnClose;	
 
-	AActor* Owner;		
+	AActor* Owner;
+	bool bIsDoorOpen;
+	bool bIsDoorMoving;
 };
